@@ -29,7 +29,7 @@ CXX		     = g++
 #CXX 		     = icpc 
 LINK_OPT             = 
 VERSION              = 
-OPTIMIZE_FLAGS       = -mavx -O3 -finline-functions 
+OPTIMIZE_FLAGS       = -mavx -O3 -finline-functions
 OMP_FLAGS 	     = -fopenmp #-openmp
 CXXFLAGS             = -DNO_CMAKE_CONFIG -Wall #-DALLOCATOR_STATS #-DTRACE_FASTFLOW
 CFLAGS               =
@@ -40,33 +40,15 @@ LIBS                 = -lpthread
 INCLUDES             = -I. $(INCS)
 TBB_INCLUDES         = -I /opt/local/include/tbb/
 TBB_LIBS             = -L /opt/local/lib/ -ltbb
-TARGET               = ff_matmul ff_matmul_v2 ff_matmul_map ff_matmul_forall ff_matmul_map_omp tbb_matmul ff_streamMM matmul
+TARGET               = jacobi_omp jacobi_ff
 
 all: $(TARGET)
 
-ff_matmul:ff_matmul.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
+jacobi_ff:jacobi.cpp
+	$(CXX) -std=c++0x -DNO_DEFAULT_MAPPING -DSTATIC_DECL $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
 
-ff_matmul_v2:ff_matmul_v2.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
-
-ff_matmul_map:ff_matmul_map.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
-
-ff_matmul_forall:ff_matmul_forall.cpp
-	$(CXX) -std=c++11 $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
-
-ff_matmul_map_omp:ff_matmul_map.cpp
+jacobi_omp:jacobi.cpp
 	$(CXX) -DUSE_OPENMP $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS) $(OMP_FLAGS)
-
-ff_streamMM:ff_streamMM.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
-
-tbb_matmul:tbb_matmul.cpp
-	$(CXX) $(INCLUDES) $(TBB_INCLUDES) $(CXXFLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(TBB_LIBS)
-
-matmul:matmul.cpp
-	$(CXX) $(INCLUDES) $(CXXFLAGS) $(OMP_FLAGS) $(ALLOC) $(OPTIMIZE_FLAGS) -o $@ $< $(LDFLAGS)
 
 clean: 
 	-rm -fr *.o *~
